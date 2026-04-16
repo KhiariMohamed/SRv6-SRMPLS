@@ -1,0 +1,37 @@
+# Backup and result directories
+backup/
+results/
+result
+
+# ContainerLab runtime files
+clab-/
+clab-dual-plane-backbone/
+*.clab.yml.annotations.json
+
+# VS Code and editor files
+.history/
+.save.sh.swp
+*.swp
+*.swo
+*~
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+netbox-venv/
+
+# Temporary files
+questrep.txt
+.DS_Store
+*.tmp
+
+# NetBox generated files (if any)
+*.json.backup
+
+# Test outputs
+test-*.log
