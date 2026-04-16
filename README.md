@@ -1,6 +1,6 @@
 # FRR SR-MPLS/SRv6 Dual-Plane Backbone Lab
 
-A comprehensive **ContainerLab** network laboratory demonstrating a progressive migration from SR-MPLS to SRv6 in a dual-plane backbone topology using **FreeRanging Routing (FRR)**.
+A comprehensive **ContainerLab** network laboratory demonstrating a progressive migration from SR-MPLS to SRv6 in a dual-plane backbone topology using **FRRouting (FRR)**.
 
 ## Overview
 
@@ -10,6 +10,7 @@ This lab models a realistic operator environment (based on Ooredoo infrastructur
 - **SRv6 Plane**: IPv6 IS-IS + SRv6 (upper layer)
 
 The topology enables coexistence and progressive service migration while validating resilience, convergence, and advanced segment routing features.
+
 
 ## Architecture
 
@@ -38,7 +39,6 @@ The topology enables coexistence and progressive service migration while validat
 - **IGP**: IS-IS
 - **Segment Routing**: SRv6 locators (`fd00:{id}::/48`)
 - **Endpoint Behaviors**: End, End.X, End.DT4, End.DT6 (allocated by IS-IS/BGP)
-- **Path computation**: pathd daemon enabled
 
 ### Services
 
