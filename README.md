@@ -10,7 +10,7 @@ This lab models a realistic operator environment (based on Ooredoo infrastructur
 - **SRv6 Plane**: IPv6 IS-IS + SRv6 (upper layer)
 
 The topology enables coexistence and progressive service migration while validating resilience, convergence, and advanced segment routing features.
-
+<img width="1608" height="1002" alt="backbone_dual_srv6_mpls drawio" src="https://github.com/user-attachments/assets/742645d5-5ce0-4ce8-b51d-6035bd26f167" />
 
 ## Architecture
 
