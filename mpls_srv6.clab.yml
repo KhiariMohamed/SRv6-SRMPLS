@@ -1,0 +1,341 @@
+# Dual-plane SRv6/SR-MPLS Backbone Topology
+# Upper plane: IPv6 IS-IS/SRv6
+# Lower plane: IPv4 OSPFv2/MPLS/SR-MPLS
+
+name: dual-plane-backbone
+
+topology:
+  defaults:
+    kind: linux
+    image: frrouting/frr:latest
+
+  nodes:
+    # ============ PE Routers (Left Side) ============
+    # PE1-Left: Upper plane (SRv6/MPLS with VRF)
+    pe1-left:
+      kind: linux
+      image: frrouting/frr:latest
+      binds:
+        - configs/pe1-left/frr.conf:/etc/frr/frr.conf
+        - configs/pe1-left/daemons:/etc/frr/daemons
+      exec:
+        - bash -c "sysctl -w net.mpls.platform_labels=100000; for i in lo eth1 eth2 eth3 eth4 eth5; do sysctl -w net.mpls.conf.$i.input=1 2>/dev/null; done"
+        - ip link add CUSTOMER-A type vrf table 100
+        - ip link set CUSTOMER-A up
+        - ip link add CUSTOMER-B type vrf table 200
+        - ip link set CUSTOMER-B up
+        - ip link set eth4 master CUSTOMER-A
+        - ip link set eth5 master CUSTOMER-B
+        - bash -c "ip -M route add 144 dev CUSTOMER-A 2>/dev/null || true"
+        - bash -c "ip -M route add 145 dev CUSTOMER-B 2>/dev/null || true"
+        - sysctl -w net.ipv6.conf.all.forwarding=1
+        - sysctl -w net.ipv6.conf.all.seg6_enabled=1
+        - sysctl -w net.ipv6.conf.default.seg6_enabled=1
+        - bash -c "for i in lo eth1 eth2 eth3 eth4; do sysctl -w net.ipv6.conf.$i.seg6_enabled=1 2>/dev/null; done"
+
+    # PE2-Left: Lower plane (MPLS/BGP with VRF)
+    pe2-left:
+      kind: linux
+      image: quay.io/frrouting/frr:10.5.1
+      binds:
+        - configs/pe2-left/frr.conf:/etc/frr/frr.conf
+        - configs/pe2-left/daemons:/etc/frr/daemons
+      exec:
+        - bash -c "sysctl -w net.mpls.platform_labels=100000; for i in lo eth1 eth2 eth3 eth4 eth5; do sysctl -w net.mpls.conf.$i.input=1 2>/dev/null; done"
+        - sysctl -w net.vrf.strict_mode=1
+        - ip link add CUSTOMER-A type vrf table 100
+        - ip link set CUSTOMER-A up
+        - ip link add CUSTOMER-B type vrf table 200
+        - ip link set CUSTOMER-B up
+        - ip link set eth4 master CUSTOMER-A
+        - ip link set eth5 master CUSTOMER-B
+        - bash -c "ip -M route add 144 dev CUSTOMER-A 2>/dev/null || true"
+        - bash -c "ip -M route add 145 dev CUSTOMER-B 2>/dev/null || true"
+        - sysctl -w net.ipv6.conf.all.forwarding=1
+        - sysctl -w net.ipv6.conf.all.seg6_enabled=1
+        - sysctl -w net.ipv6.conf.default.seg6_enabled=1
+        - bash -c "for i in lo eth1 eth2 eth3 eth4; do sysctl -w net.ipv6.conf.$i.seg6_enabled=1 2>/dev/null; done"
+        - bash -c "(sleep 30 && vtysh -c 'conf t' -c 'router bgp 65000 vrf CUSTOMER-A' -c 'address-family ipv4 unicast' -c 'no sid vpn export auto' -c 'sid vpn export auto' -c 'exit-address-family' -c 'exit' -c 'router bgp 65000 vrf CUSTOMER-B' -c 'address-family ipv4 unicast' -c 'no sid vpn export auto' -c 'sid vpn export auto' -c 'exit-address-family' -c 'exit' -c 'exit') &"
+        - bash -c "(sleep 15 && vtysh -c 'conf t' -c 'router ospf' -c 'segment-routing on' -c 'segment-routing global-block 16000 23999' -c 'end') &"
+
+    # ============ PE Routers (Right Side) ============
+    # PE1-Right: Upper plane (SRv6/MPLS with VRF)
+    pe1-right:
+      kind: linux
+      image: frrouting/frr:latest
+      binds:
+        - configs/pe1-right/frr.conf:/etc/frr/frr.conf
+        - configs/pe1-right/daemons:/etc/frr/daemons
+      exec:
+        - bash -c "sysctl -w net.mpls.platform_labels=100000; for i in lo eth1 eth2 eth3 eth4 eth5; do sysctl -w net.mpls.conf.$i.input=1 2>/dev/null; done"
+        - ip link add CUSTOMER-A type vrf table 100
+        - ip link set CUSTOMER-A up
+        - ip link add CUSTOMER-B type vrf table 200
+        - ip link set CUSTOMER-B up
+        - ip link set eth4 master CUSTOMER-A
+        - ip link set eth5 master CUSTOMER-B
+        - bash -c "ip -M route add 144 dev CUSTOMER-A 2>/dev/null || true"
+        - bash -c "ip -M route add 145 dev CUSTOMER-B 2>/dev/null || true"
+        - sysctl -w net.ipv6.conf.all.forwarding=1
+        - sysctl -w net.ipv6.conf.all.seg6_enabled=1
+        - sysctl -w net.ipv6.conf.default.seg6_enabled=1
+        - bash -c "for i in lo eth1 eth2 eth3 eth4; do sysctl -w net.ipv6.conf.$i.seg6_enabled=1 2>/dev/null; done"
+
+    # PE2-Right: Lower plane (MPLS/BGP with VRF)
+    pe2-right:
+      kind: linux
+      image: quay.io/frrouting/frr:10.2.1
+      binds:
+        - configs/pe2-right/frr.conf:/etc/frr/frr.conf
+        - configs/pe2-right/daemons:/etc/frr/daemons
+      exec:
+        - bash -c "sysctl -w net.mpls.platform_labels=100000; for i in lo eth1 eth2 eth3 eth4 eth5; do sysctl -w net.mpls.conf.$i.input=1 2>/dev/null; done"
+        - sysctl -w net.vrf.strict_mode=1
+        - ip link add CUSTOMER-A type vrf table 100
+        - ip link set CUSTOMER-A up
+        - ip link add CUSTOMER-B type vrf table 200
+        - ip link set CUSTOMER-B up
+        - ip link set eth4 master CUSTOMER-A
+        - ip link set eth5 master CUSTOMER-B
+        - bash -c "ip -M route add 144 dev CUSTOMER-A 2>/dev/null || true"
+        - bash -c "ip -M route add 145 dev CUSTOMER-B 2>/dev/null || true"
+        - sysctl -w net.ipv6.conf.all.forwarding=1
+        - sysctl -w net.ipv6.conf.all.seg6_enabled=1
+        - sysctl -w net.ipv6.conf.default.seg6_enabled=1
+        - bash -c "for i in lo eth1 eth2 eth3 eth4; do sysctl -w net.ipv6.conf.$i.seg6_enabled=1 2>/dev/null; done"
+        - bash -c "(sleep 30 && vtysh -c 'conf t' -c 'router bgp 65000 vrf CUSTOMER-A' -c 'address-family ipv4 unicast' -c 'no sid vpn export auto' -c 'sid vpn export auto' -c 'exit-address-family' -c 'exit' -c 'router bgp 65000 vrf CUSTOMER-B' -c 'address-family ipv4 unicast' -c 'no sid vpn export auto' -c 'sid vpn export auto' -c 'exit-address-family' -c 'exit' -c 'exit') &"
+        - bash -c "(sleep 15 && vtysh -c 'conf t' -c 'router ospf' -c 'segment-routing on' -c 'segment-routing global-block 16000 23999' -c 'end') &"
+
+    # ============ Core Routers - Upper Plane (IPv6 IS-IS/SRv6) ============
+    p1-srv6:
+      kind: linux
+      image: quay.io/frrouting/frr:10.2.1
+      binds:
+        - configs/p1-srv6/frr.conf:/etc/frr/frr.conf
+        - configs/p1-srv6/daemons:/etc/frr/daemons
+      exec:
+        - sysctl -w net.ipv6.conf.all.forwarding=1
+        - sysctl -w net.ipv6.conf.all.seg6_enabled=1
+        - sysctl -w net.ipv6.conf.default.seg6_enabled=1
+        - bash -c "for i in lo eth1 eth2 eth3 eth4; do sysctl -w net.ipv6.conf.$i.seg6_enabled=1 2>/dev/null; done"
+
+    p2-srv6:
+      kind: linux
+      image: quay.io/frrouting/frr:10.2.1
+      binds:
+        - configs/p2-srv6/frr.conf:/etc/frr/frr.conf
+        - configs/p2-srv6/daemons:/etc/frr/daemons
+      exec:
+        - sysctl -w net.ipv6.conf.all.forwarding=1
+        - sysctl -w net.ipv6.conf.all.seg6_enabled=1
+        - sysctl -w net.ipv6.conf.default.seg6_enabled=1
+        - bash -c "for i in lo eth1 eth2 eth3 eth4; do sysctl -w net.ipv6.conf.$i.seg6_enabled=1 2>/dev/null; done"
+
+    p3-srv6:
+      kind: linux
+      image: quay.io/frrouting/frr:10.2.1
+      binds:
+        - configs/p3-srv6/frr.conf:/etc/frr/frr.conf
+        - configs/p3-srv6/daemons:/etc/frr/daemons
+      exec:
+        - sysctl -w net.ipv6.conf.all.forwarding=1
+        - sysctl -w net.ipv6.conf.all.seg6_enabled=1
+        - sysctl -w net.ipv6.conf.default.seg6_enabled=1
+        - bash -c "for i in lo eth1 eth2 eth3 eth4; do sysctl -w net.ipv6.conf.$i.seg6_enabled=1 2>/dev/null; done"
+
+    p4-srv6:
+      kind: linux
+      image: quay.io/frrouting/frr:10.2.1
+      binds:
+        - configs/p4-srv6/frr.conf:/etc/frr/frr.conf
+        - configs/p4-srv6/daemons:/etc/frr/daemons
+      exec:
+        - sysctl -w net.ipv6.conf.all.forwarding=1
+        - sysctl -w net.ipv6.conf.all.seg6_enabled=1
+        - sysctl -w net.ipv6.conf.default.seg6_enabled=1
+        - bash -c "for i in lo eth1 eth2 eth3 eth4; do sysctl -w net.ipv6.conf.$i.seg6_enabled=1 2>/dev/null; done"
+
+    # ============ Core Routers - Lower Plane (IPv4 OSPFv2/SR-MPLS) ============
+    p1-mpls:
+      kind: linux
+      image: quay.io/frrouting/frr:10.5.1
+      binds:
+        - configs/p1-mpls/frr.conf:/etc/frr/frr.conf
+        - configs/p1-mpls/daemons:/etc/frr/daemons
+      exec:
+        - bash -c "sysctl -w net.mpls.platform_labels=100000; for i in lo eth1 eth2 eth3 eth4; do sysctl -w net.mpls.conf.$i.input=1 2>/dev/null; done"
+
+    p2-mpls:
+      kind: linux
+      image: quay.io/frrouting/frr:10.5.1
+      binds:
+        - configs/p2-mpls/frr.conf:/etc/frr/frr.conf
+        - configs/p2-mpls/daemons:/etc/frr/daemons
+      exec:
+        - bash -c "sysctl -w net.mpls.platform_labels=100000; for i in lo eth1 eth2 eth3 eth4; do sysctl -w net.mpls.conf.$i.input=1 2>/dev/null; done"
+
+    p3-mpls:
+      kind: linux
+      image: frrouting/frr:latest
+      binds:
+        - configs/p3-mpls/frr.conf:/etc/frr/frr.conf
+        - configs/p3-mpls/daemons:/etc/frr/daemons
+      exec:
+        - bash -c "sysctl -w net.mpls.platform_labels=100000; for i in lo eth1 eth2 eth3 eth4; do sysctl -w net.mpls.conf.$i.input=1 2>/dev/null; done"
+
+    p4-mpls:
+      kind: linux
+      image: frrouting/frr:latest
+      binds:
+        - configs/p4-mpls/frr.conf:/etc/frr/frr.conf
+        - configs/p4-mpls/daemons:/etc/frr/daemons
+      exec:
+        - bash -c "sysctl -w net.mpls.platform_labels=100000; for i in lo eth1 eth2 eth3 eth4; do sysctl -w net.mpls.conf.$i.input=1 2>/dev/null; done"
+
+    # ============ CE Routers ============
+    ce1:
+      kind: linux
+      image: frrouting/frr:latest
+      binds:
+        - configs/ce1/frr.conf:/etc/frr/frr.conf
+      exec:
+        - bash -c "ip route del default via 172.20.20.1 2>/dev/null || true"
+    ce2:
+      kind: linux
+      image: frrouting/frr:latest
+      binds:
+        - configs/ce2/frr.conf:/etc/frr/frr.conf
+      exec:
+        - bash -c "ip route del default via 172.20.20.1 2>/dev/null || true"
+    ce3:
+      kind: linux
+      image: frrouting/frr:latest
+      binds:
+        - configs/ce3/frr.conf:/etc/frr/frr.conf
+      exec:
+        - bash -c "ip route del default via 172.20.20.1 2>/dev/null || true"
+    ce4:
+      kind: linux
+      image: frrouting/frr:latest
+      binds:
+        - configs/ce4/frr.conf:/etc/frr/frr.conf
+      exec:
+        - bash -c "ip route del default via 172.20.20.1 2>/dev/null || true"
+    ce5:
+      kind: linux
+      image: frrouting/frr:latest
+      binds:
+        - configs/ce5/frr.conf:/etc/frr/frr.conf
+      exec:
+        - bash -c "ip route del default via 172.20.20.1 2>/dev/null || true"
+    ce6:
+      kind: linux
+      image: frrouting/frr:latest
+      binds:
+        - configs/ce6/frr.conf:/etc/frr/frr.conf
+      exec:
+        - bash -c "ip route del default via 172.20.20.1 2>/dev/null || true"
+    ce7:
+      kind: linux
+      image: frrouting/frr:latest
+      binds:
+        - configs/ce7/frr.conf:/etc/frr/frr.conf
+      exec:
+        - bash -c "ip route del default via 172.20.20.1 2>/dev/null || true"
+    ce8:
+      kind: linux
+      image: frrouting/frr:latest
+      binds:
+        - configs/ce8/frr.conf:/etc/frr/frr.conf
+      exec:
+        - bash -c "ip route del default via 172.20.20.1 2>/dev/null || true"
+    netshoot:
+      kind: linux
+      image: nicolaka/netshoot
+      binds:
+        - /var/run/docker.sock:/var/run/docker.sock
+        - configs/netshoot/netshoot.conf:/etc/netshoot/netshoot.conf
+        - configs/netshoot/qos.sh:/etc/netshoot/qos.sh
+        - configs/netshoot/benchmark.sh:/etc/netshoot/benchmark.sh
+        - results:/results                        # shared results volume
+      cmd: tail -f /dev/null                      # keep container alive
+      env:
+        NETSHOOT_MODE: "standby"                  # overridden at runtime
+      exec:
+        - apk add --no-cache docker-cli
+        - mkdir -p /results
+        - chmod +x /etc/netshoot/qos.sh
+        - chmod +x /etc/netshoot/benchmark.sh
+     # ── sFlow-RT analytics engine ─────────────────────────────────────────────
+    sflow-rt:
+      kind: linux
+      image: sflow/clab-sflow-rt
+      ports:
+      - "8008:8008"       # dashboard + REST API
+      - "6343:6343/udp"   # sFlow datagram collector
+
+    # ── host-sflow agent — monitors ALL veth pairs on Ubuntu host ────────────
+    # uses network-mode: host so it sees every containerlab veth interface
+    # sends sFlow to 127.0.0.1:6343 which maps to sflow-rt via port binding
+    sflow-agent:
+      kind: linux
+      image: sflow/host-sflow
+      network-mode: host
+      binds:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      env:
+        COLLECTOR: "127.0.0.1"   # host loopback → sflow-rt port 6343 exposed above
+        SAMPLING:  "100"          # 1-in-100 for lab (use 1000 in prod)
+        POLLING:   "10"           # counter export every 10 seconds
+        NET:       "host"         # tell hsflowd to use host network
+
+  links:
+    # ============ Upper Plane Links (IPv6 IS-IS/SRv6 - Orange Cloud) ============
+    # Left PE1 to SRv6 core
+    - endpoints: ["pe1-left:eth1", "p1-srv6:eth1"]
+    - endpoints: ["pe1-left:eth2", "p1-mpls:eth1"]
+
+    # SRv6 Core mesh
+    - endpoints: ["p1-srv6:eth2", "p2-srv6:eth2"]
+    - endpoints: ["p2-srv6:eth4", "p3-srv6:eth4"]
+    - endpoints: ["p1-srv6:eth4", "p4-srv6:eth4"]
+    - endpoints: ["p1-srv6:eth3", "p3-srv6:eth1"]
+    - endpoints: ["p2-srv6:eth3", "p4-srv6:eth1"]
+    - endpoints: ["p3-srv6:eth2", "p4-srv6:eth2"]
+
+    # Right PE1 to SRv6 core
+    - endpoints: ["p3-srv6:eth3", "pe1-right:eth1"]
+    - endpoints: ["p3-mpls:eth3", "pe1-right:eth2"]
+
+    # ============ Lower Plane Links (IPv4 OSPFv2/SR-MPLS - Blue Cloud) ============
+    # Left PE2 to MPLS core
+    - endpoints: ["pe2-left:eth1", "p2-srv6:eth1"]
+    - endpoints: ["pe2-left:eth2", "p2-mpls:eth1"]
+
+    # MPLS Core mesh
+    - endpoints: ["p1-mpls:eth2", "p2-mpls:eth2"]
+    - endpoints: ["p2-mpls:eth4", "p3-mpls:eth4"]
+    - endpoints: ["p1-mpls:eth4", "p4-mpls:eth4"]
+    - endpoints: ["p1-mpls:eth3", "p3-mpls:eth1"]
+    - endpoints: ["p2-mpls:eth3", "p4-mpls:eth1"]
+    - endpoints: ["p3-mpls:eth2", "p4-mpls:eth2"]
+
+    # Right PE2 to MPLS core
+    - endpoints: ["p4-srv6:eth3", "pe2-right:eth1"]
+    - endpoints: ["p4-mpls:eth3", "pe2-right:eth2"]
+
+
+    # ============ CE Connections ============
+    # CE connects to right-side PEs
+    - endpoints: ["ce1:eth1", "pe1-right:eth4"]
+    - endpoints: ["ce2:eth1", "pe1-right:eth5"]
+    - endpoints: ["ce3:eth1", "pe1-left:eth4"]
+    - endpoints: ["ce4:eth1", "pe1-left:eth5"]
+    - endpoints: ["ce5:eth1", "pe2-right:eth4"]
+    - endpoints: ["ce6:eth1", "pe2-right:eth5"]
+    - endpoints: ["ce7:eth1", "pe2-left:eth4"]
+    - endpoints: ["ce8:eth1", "pe2-left:eth5"]
+
+    # ============ Netshoot Testing Links ============
+    # Netshoot connected to p1-srv6 for testing
+    - endpoints: ["netshoot:eth1", "pe2-left:eth6"]

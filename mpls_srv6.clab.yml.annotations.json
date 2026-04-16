@@ -1,0 +1,159 @@
+{
+  "freeTextAnnotations": [],
+  "freeShapeAnnotations": [],
+  "trafficRateAnnotations": [],
+  "groupStyleAnnotations": [],
+  "networkNodeAnnotations": [],
+  "nodeAnnotations": [
+    {
+      "id": "pe1-left",
+      "position": {
+        "x": 100,
+        "y": 400
+      }
+    },
+    {
+      "id": "pe2-left",
+      "position": {
+        "x": 100,
+        "y": 180
+      }
+    },
+    {
+      "id": "pe1-right",
+      "position": {
+        "x": 660,
+        "y": 400
+      }
+    },
+    {
+      "id": "pe2-right",
+      "position": {
+        "x": 660,
+        "y": 180
+      }
+    },
+    {
+      "id": "p1-srv6",
+      "position": {
+        "x": 280,
+        "y": 260
+      }
+    },
+    {
+      "id": "p2-srv6",
+      "position": {
+        "x": 280,
+        "y": 140
+      }
+    },
+    {
+      "id": "p3-srv6",
+      "position": {
+        "x": 480,
+        "y": 260
+      }
+    },
+    {
+      "id": "p4-srv6",
+      "position": {
+        "x": 480,
+        "y": 140
+      }
+    },
+    {
+      "id": "p1-mpls",
+      "position": {
+        "x": 280,
+        "y": 500
+      }
+    },
+    {
+      "id": "p2-mpls",
+      "position": {
+        "x": 280,
+        "y": 380
+      }
+    },
+    {
+      "id": "p3-mpls",
+      "position": {
+        "x": 480,
+        "y": 500
+      }
+    },
+    {
+      "id": "p4-mpls",
+      "position": {
+        "x": 480,
+        "y": 380
+      }
+    },
+    {
+      "id": "ce1",
+      "position": {
+        "x": 860,
+        "y": 340
+      }
+    },
+    {
+      "id": "ce2",
+      "position": {
+        "x": 860,
+        "y": 520
+      }
+    },
+    {
+      "id": "ce3",
+      "position": {
+        "x": -60,
+        "y": 520
+      }
+    },
+    {
+      "id": "ce4",
+      "position": {
+        "x": -60,
+        "y": 340
+      }
+    },
+    {
+      "id": "ce5",
+      "position": {
+        "x": 860,
+        "y": 80
+      }
+    },
+    {
+      "id": "ce6",
+      "position": {
+        "x": 860,
+        "y": 240
+      }
+    },
+    {
+      "id": "ce7",
+      "position": {
+        "x": -60,
+        "y": 260
+      }
+    },
+    {
+      "id": "ce8",
+      "position": {
+        "x": -60,
+        "y": 100
+      }
+    },
+    {
+      "id": "netshoot",
+      "position": {
+        "x": 100,
+        "y": -40
+      }
+    }
+  ],
+  "edgeAnnotations": [],
+  "aliasEndpointAnnotations": [],
+  "viewerSettings": {}
+}

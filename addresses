@@ -1,0 +1,108 @@
+
+IP Addressing Plan for Dual-Plane SRv6/SR-MPLS Backbone :
+
+**Loopback Addresses
+Node	Loopback IPv4	Loopback IPv6
+PE1-Left	10.0.0.1/32	fd00::1/128
+PE2-Left	10.0.0.2/32	fd00::2/128
+PE1-Right	10.0.0.3/32	fd00::3/128
+PE2-Right	10.0.0.4/32	fd00::4/128
+P1-SRv6	10.0.0.11/32	fd00::11/128
+P2-SRv6	10.0.0.12/32	fd00::12/128
+P3-SRv6	10.0.0.13/32	fd00::13/128
+P4-SRv6	10.0.0.14/32	fd00::14/128
+P1-MPLS	10.0.0.21/32	fd00::21/128
+P2-MPLS	10.0.0.22/32	fd00::22/128
+P3-MPLS	10.0.0.23/32	fd00::23/128
+P4-MPLS	10.0.0.24/32	fd00::24/128
+CE1	10.0.0.101/32	-
+CE2	10.0.0.102/32	-
+CE3	10.0.0.103/32	-
+CE4	10.0.0.104/32	-
+CE5	10.0.0.105/32	-
+CE6	10.0.0.106/32	-
+CE7	10.0.0.107/32	-
+CE8	10.0.0.108/32	-
+
+
+**Upper Plane Links (IPv6 IS-IS/SRv6)
+Link	Interface A	IPv6 Address A	Interface B	IPv6 Address B
+PE1-Left ↔ P1-SRv6	pe1-left:eth1	2001:db8:1::1/64	p1-srv6:eth1	2001:db8:1::2/64
+P1-SRv6 ↔ P2-SRv6	p1-srv6:eth2	2001:db8:2::1/64	p2-srv6:eth2	2001:db8:2::2/64
+P2-SRv6 ↔ P3-SRv6	p2-srv6:eth4	2001:db8:3::1/64	p3-srv6:eth4	2001:db8:3::2/64
+P1-SRv6 ↔ P4-SRv6	p1-srv6:eth4	2001:db8:4::1/64	p4-srv6:eth4	2001:db8:4::2/64
+P1-SRv6 ↔ P3-SRv6	p1-srv6:eth3	2001:db8:5::1/64	p3-srv6:eth1	2001:db8:5::2/64
+P2-SRv6 ↔ P4-SRv6	p2-srv6:eth3	2001:db8:6::1/64	p4-srv6:eth1	2001:db8:6::2/64
+P3-SRv6 ↔ P4-SRv6	p3-srv6:eth2	2001:db8:7::1/64	p4-srv6:eth2	2001:db8:7::2/64
+P3-SRv6 ↔ PE1-Right	p3-srv6:eth3	2001:db8:8::1/64	pe1-right:eth1	2001:db8:8::2/64
+PE2-Left ↔ P2-SRv6	pe2-left:eth1	2001:db8:9::1/64	p2-srv6:eth1	2001:db8:9::2/64
+P4-SRv6 ↔ PE2-Right	p4-srv6:eth3	2001:db8:10::1/64	pe2-right:eth1	2001:db8:10::2/64
+
+
+**Lower Plane Links (IPv4 OSPFv2/SR-MPLS)
+Link	Interface A	IPv4 Address A	Interface B	IPv4 Address B
+PE1-Left ↔ P1-MPLS	pe1-left:eth2	172.16.1.1/30	p1-mpls:eth1	172.16.1.2/30
+P1-MPLS ↔ P2-MPLS	p1-mpls:eth2	172.16.2.1/30	p2-mpls:eth2	172.16.2.2/30
+P2-MPLS ↔ P3-MPLS	p2-mpls:eth4	172.16.3.1/30	p3-mpls:eth4	172.16.3.2/30
+P1-MPLS ↔ P4-MPLS	p1-mpls:eth4	172.16.4.1/30	p4-mpls:eth4	172.16.4.2/30
+P1-MPLS ↔ P3-MPLS	p1-mpls:eth3	172.16.5.1/30	p3-mpls:eth1	172.16.5.2/30
+P2-MPLS ↔ P4-MPLS	p2-mpls:eth3	172.16.6.1/30	p4-mpls:eth1	172.16.6.2/30
+P3-MPLS ↔ P4-MPLS	p3-mpls:eth2	172.16.7.1/30	p4-mpls:eth2	172.16.7.2/30
+P3-MPLS ↔ PE1-Right	p3-mpls:eth3	172.16.8.1/30	pe1-right:eth2	172.16.8.2/30
+PE2-Left ↔ P2-MPLS	pe2-left:eth2	172.16.9.1/30	p2-mpls:eth1	172.16.9.2/30
+P4-MPLS ↔ PE2-Right	p4-mpls:eth3	172.16.10.1/30	pe2-right:eth2	172.16.10.2/30
+
+
+
+
+
+**CE Connections (VRF Links)
+Link	CE Interface	CE IP	PE Interface	PE IP	VRF
+CE1 ↔ PE1-Right	ce1:eth1	192.168.1.2/30	pe1-right:eth4	192.168.1.1/30	VRF-A
+CE2 ↔ PE1-Right	ce2:eth1	192.168.2.2/30	pe1-right:eth5	192.168.2.1/30	VRF-B
+CE3 ↔ PE1-Left	ce3:eth1	192.168.3.2/30	pe1-left:eth4	192.168.3.1/30	VRF-A
+CE4 ↔ PE1-Left	ce4:eth1	192.168.4.2/30	pe1-left:eth5	192.168.4.1/30	VRF-B
+CE5 ↔ PE2-Right	ce5:eth1	192.168.5.2/30	pe2-right:eth4	192.168.5.1/30	VRF-A
+CE6 ↔ PE2-Right	ce6:eth1	192.168.6.2/30	pe2-right:eth5	192.168.6.1/30	VRF-B
+CE7 ↔ PE2-Left	ce7:eth1	192.168.7.2/30	pe2-left:eth4	192.168.7.1/30	VRF-A
+CE8 ↔ PE2-Left	ce8:eth1	192.168.8.2/30	pe2-left:eth5	192.168.8.1/30	VRF-B
+
+
+
+**SRv6 SID Blocks (for Upper Plane)
+Node	SRv6 Locator
+PE1-Left	fcbb:bb00:1::/48
+PE2-Left	fcbb:bb00:2::/48
+PE1-Right	fcbb:bb00:3::/48
+PE2-Right	fcbb:bb00:4::/48
+P1-SRv6	fcbb:bb00:11::/48
+P2-SRv6	fcbb:bb00:12::/48
+P3-SRv6	fcbb:bb00:13::/48
+P4-SRv6	fcbb:bb00:14::/48
+
+
+**SR-MPLS Node SIDs (for Lower Plane)
+Node	Node SID (SRGB: 16000-23999)
+PE1-Left	16001
+PE2-Left	16002
+PE1-Right	16003
+PE2-Right	16004
+P1-MPLS	16021
+P2-MPLS	16022
+P3-MPLS	16023
+P4-MPLS	16024
+
+
+
+
+**Summary of Address Ranges Used
+Purpose	Range
+Loopbacks IPv4	10.0.0.0/24
+Loopbacks IPv6	fd00::/64
+Upper Plane P2P (IPv6)	2001:db8::/32
+Lower Plane P2P (IPv4)	172.16.0.0/16
+CE-PE Links	192.168.0.0/16
+SRv6 Locators	fcbb:bb00::/32
+
+
+
